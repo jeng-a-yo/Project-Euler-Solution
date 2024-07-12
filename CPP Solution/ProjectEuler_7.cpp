@@ -1,30 +1,44 @@
 #include <iostream>
+#include <vector>
 #include <cmath>
+
 using namespace std;
 
-bool isPrime(long long int number) {
-    if (number <= 1) return false;
-    if (number <= 3) return true;
-    if (number % 2 == 0 || number % 3 == 0) return false;
-    for (long long int i = 5; i * i <= number; i += 6) {
-        if (number % i == 0 || number % (i + 2) == 0)
-            return false;
+// Function to generate prime numbers using the Sieve of Eratosthenes
+void generatePrimes(vector<bool>& isPrime, int limit) {
+    fill(isPrime.begin(), isPrime.end(), true);
+    isPrime[0] = isPrime[1] = false;
+    for (int i = 2; i <= sqrt(limit); ++i) {
+        if (isPrime[i]) {
+            for (int j = i * i; j < limit; j += i) {
+                isPrime[j] = false;
+            }
+        }
     }
-    return true;
+}
+
+// Function to find the nth prime number
+int findNthPrime(int n) {
+    // Estimate an upper limit for the nth prime number using the approximation n log n + n log log n
+    int limit = n * log(n) + n * log(log(n));
+    vector<bool> isPrime(limit, true);
+    generatePrimes(isPrime, limit);
+
+    int count = 0;
+    for (int i = 2; i < limit; ++i) {
+        if (isPrime[i]) {
+            ++count;
+            if (count == n) {
+                return i;
+            }
+        }
+    }
+    return -1; // If not found within the limit
 }
 
 int main() {
-    int count = 1; // Count the prime number 2
-    long long int number = 1;
-
-    while (count < 10001) {
-        number += 2; // Check only odd numbers
-        if (isPrime(number)) {
-            count++;
-        }
-    }
-
-    cout << "The 10001st prime number is: " << number << endl;
-
+    int n = 10001;
+    int prime = findNthPrime(n);
+    cout << "The " << n << "th prime number is " << prime << endl;
     return 0;
 }
